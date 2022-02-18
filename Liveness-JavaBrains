@@ -1,0 +1,12 @@
+Liveness
+1. State of general activity and motion
+2. Requires a system to make progress
+3. Not "stuck"
+4. Something good will eventually occur
+
+A program execution should ideally result in a success/error response, But if a program "hangs" it affects the liveness of the system.
+
+Liveness issues with concurrency
+1. Deadlock - Circular dependency issues. - synchronized block issues
+2. Livelock( A smarter deadlock) - where your solution to a deadlock is inefficient.
+3. Starvation - Thread is ready to run but is never given a chance.(low priority thread not scheduled by the executor, also called Indefinite postponement)
