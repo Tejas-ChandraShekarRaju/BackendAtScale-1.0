@@ -1,5 +1,7 @@
 package com.master.service;
 
+import java.util.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.master.response.Word;
 import com.master.constant.Constants;
 import com.master.meta.MetaData;
+import com.master.models.Chunk;
 import com.master.models.Node;
 import com.master.response.BaseResponse;
 import com.master.service.Util;
@@ -37,16 +40,12 @@ public class MasterServiceImpl implements MasterService{
 			
 		words = Util.getWordsByMaxLimit(125,words);
 		
-		List<Node> nodesPack  = reconcile(md.getLRUI(),md.getLRUN(),words);
-
-
-//			String[] s = webClientBuilder.build()
-//					.get()
-//					.uri("http://localhost:8081/api/words")
-//					.retrieve()
-//					.bodyToMono(String[].class)
-//					.block();
-//			response.setWords(s);
+		
+		synchronized(this)
+		{
+			List<Node> nodesPack  = createMergePackage(md.getLRUI(),md.getLRUN(),words);
+		}
+		
 
 		}
 
@@ -98,11 +97,60 @@ public class MasterServiceImpl implements MasterService{
 		return null;
 	}
 	
-	public List<Node> reconcile(int wordIndex,int nodeIndex,String[] words)
+	public List<Node> createMergePackage(int wordIndex,int nodeIndex,String[] words)
 	{
-		return null;
+		List<Node> nodesData = new ArrayList<>();
+		
+		Date date = new Date();
+		Timestamp ts=new Timestamp(date.getTime());
+		int startIndex = wordIndex;
+		int wordIndexPointer = 0;
+		int nextStartWordIndex = wordIndex;
+		int nextStartNodeIndex = nodeIndex;
+		
+	    for (int i = nodeIndex; i < 5 + nodeIndex && wordIndexPointer<words.length; i++) {
+	    	int remainingWords = words.length - wordIndexPointer;
+	    	int slotsRemaining = (25 - startIndex);
+	    	int endIndex;	
+	    		if(slotsRemaining > remainingWords)
+	    		{
+	    			endIndex = startIndex+remainingWords;
+	    		}
+	    		else endIndex = startIndex+slotsRemaining;
+	    		
+	    	int currentNode = i % 5;
+	    	Node n = new Node();
+	    	n.setNodeId(currentNode);
+	    	n.setNodeUrl(nodeUrl);
+	    	Chunk c = new Chunk();
+	    	c.setCreatedTime(ts);
+	    	c.setStartIndex(startIndex);
+	    	c.setEndIndex(endIndex);
+	    	c.setWords(Arrays.copyOfRange(words,wordIndexPointer,wordIndexPointer+slotsRemaining));
+	    	n.setChunk(c);
+	    	wordIndexPointer = wordIndexPointer+slotsRemaining;
+	    	startIndex = 0;
+	    	
+	    	nodesData.add(n);
+	    	nextStartNodeIndex = currentNode;
+	    	nextStartWordIndex = endIndex;
+	    	
+	    	
+    		}
+	    if(nextStartWordIndex>=25)
+	    {
+	    	nextStartNodeIndex = (nextStartNodeIndex+1)%5;
+	    	nextStartWordIndex = 0;
+	    }
+	    System.out.println("nextStartNode"+""+nextStartNodeIndex+""+nextStartWordIndex);
+	    md.setLRUI(nextStartWordIndex);
+	    md.setLRUN(nextStartNodeIndex);
+		
+		return nodesData;
 	}
 	
+	
+
 	
 	
 
