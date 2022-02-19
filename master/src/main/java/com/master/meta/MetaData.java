@@ -21,7 +21,7 @@ public class MetaData {
 	private MetaData() {
 		for(int i=0;i<5;i++)
 		{
-			this.nodeUris.add("http://localhost:8081/api/words/"+i);
+			this.nodeUris.add("http://localhost:808"+(i+1)+"/api");
 		}
 	}
 	

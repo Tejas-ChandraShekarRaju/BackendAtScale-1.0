@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.master.models.Chunk;
-import com.master.request.Word;
+import com.master.request.WordRequest;
 import com.master.response.BaseResponse;
 import com.master.service.MasterService;
 
@@ -84,27 +84,27 @@ public class MainController {
     
     @PostMapping("/words")
     @ApiOperation(value="")
-	public @ResponseBody BaseResponse saveWords(@RequestBody Word word)
+	public @ResponseBody BaseResponse saveWords(@RequestBody WordRequest word)
 	{
 		return masterservice.saveWords(word.getWords());
 	}
 	
 	@GetMapping("/words")
-	@ApiOperation(value="")
+	@ApiOperation(value="Get all words in DB")
 	public @ResponseBody BaseResponse getWords()
 	{
-		return null;
+		return masterservice.getWords();
 	}
 	
 	@DeleteMapping("/words")
-	@ApiOperation(value="")
+	@ApiOperation(value="Delete all words in DB")
 	public @ResponseBody BaseResponse deleteWords()
 	{
 		return null;
 	}
 	
 	@DeleteMapping("/word/{wordValue}")
-	@ApiOperation(value="")
+	@ApiOperation(value="Delete a particular word in DB")
 	public @ResponseBody BaseResponse deleteWord(@PathVariable String wordValue)
 	{
 		return null;

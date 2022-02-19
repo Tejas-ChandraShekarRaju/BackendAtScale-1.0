@@ -1,19 +1,19 @@
 package com.master.dao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.master.constant.Constants;
 import com.master.models.Chunk;
 import com.master.models.Node;
-import com.master.request.Word;
 import com.master.response.BaseResponse;
+import com.master.response.ChunkResponse;
 
 import reactor.core.publisher.Mono;
 
@@ -27,37 +27,49 @@ public class MasterDaoImpl implements MasterDao{
 	public BaseResponse merge(List<Node> nodes) {
 		// TODO Auto-generated method stub
 		BaseResponse response = new BaseResponse();
-		String[] status = new String[5];
+		Map<Integer,String> status = new HashMap<>();
+		
 		for(int i=0;i<nodes.size();i++)
 		{
-			status[i] = persist(nodes.get(i).getChunk(),nodes.get(i).getNodeUrl());
+			String tempStatus = persist(nodes.get(i).getChunk(),nodes.get(i).getNodeUrl());
+			status.put(nodes.get(i).getNodeId(), tempStatus);
 			
 		}
 		
-		for(int i=0;i<5;i++)
-		{
-			if(status[i]!="Success")
+		status.forEach((k,v) ->{
+			if(v!="Success")
 			{
-				response.setExecutionStatus(Constants.Failure);
-				response.setErrorDetails("Failed to persist at node "+i);
+				response.setErrorDetails("Failed to persist at Node "+k);
 			}
-		}
+		});
 		
 		return response;
 	}
 	
 	public String persist(Chunk c,String url)
 	{
-		String executionStatus = webClientBuilder.build()
+		BaseResponse resp = webClientBuilder.build()
 				.post()
 				.uri(url)
 				.accept(MediaType.APPLICATION_JSON)
 				.body(Mono.just(c),Chunk.class)
 				.retrieve()
-				.bodyToMono(String.class)
+				.bodyToMono(BaseResponse.class)
 				.block();
 		
-		return executionStatus;
+		return resp.getExecutionStatus();
+	}
+
+	@Override
+	public ChunkResponse getChunk(String url) {
+		// TODO Auto-generated method stub
+		 ChunkResponse resp =  webClientBuilder.build()
+				.get()
+				.uri(url)
+				.retrieve()
+				.bodyToMono(ChunkResponse.class)
+				.block();
+		 return resp;
 	}
 
 
