@@ -7,6 +7,17 @@ public class Word {
 	String word;
 	  
 	Date createdTime;
+	
+	int nodeId;
+	
+
+	public int getNodeId() {
+		return nodeId;
+	}
+
+	public void setNodeId(int nodeId) {
+		this.nodeId = nodeId;
+	}
 
 	public String getWord() {
 		return word;

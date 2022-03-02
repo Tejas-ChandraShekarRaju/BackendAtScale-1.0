@@ -37,7 +37,7 @@ public class MasterDaoImpl implements MasterDao{
 		}
 		
 		status.forEach((k,v) ->{
-			if(v!="Success")
+			if(v!=Constants.Success)
 			{
 				response.setErrorDetails("Failed to persist at Node "+k);
 			}
@@ -70,6 +70,30 @@ public class MasterDaoImpl implements MasterDao{
 				.bodyToMono(ChunkResponse.class)
 				.block();
 		 return resp;
+	}
+
+	@Override
+	public BaseResponse deleteWord(String  url) {
+		
+		BaseResponse response = new BaseResponse();
+		try {
+			
+				 response =  webClientBuilder.build()
+						.get()
+						.uri(url)
+						.retrieve()
+						.bodyToMono(ChunkResponse.class)
+						.block();
+				 
+				
+			}
+			
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			response.setExecutionStatus(Constants.Failure);
+		}
+		return response;
 	}
 
 

@@ -3,9 +3,11 @@ package com.master.service;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import com.master.models.Node;
 import com.master.models.Word;
 import com.master.response.BaseResponse;
 import com.master.response.ChunkResponse;
+import com.master.response.TestResponse;
 import com.master.response.WordResponse;
 import com.master.service.Util;
 
@@ -66,7 +69,7 @@ public class MasterServiceImpl implements MasterService{
 	}
 
 
-	public BaseResponse getWords() {
+	public WordResponse getWords() {
 		// TODO Auto-generated method stub
 		StopWatch timeMeasure = new StopWatch();
 		timeMeasure.start();
@@ -99,7 +102,7 @@ public class MasterServiceImpl implements MasterService{
 
 	public BaseResponse deleteWords() {
 		// TODO Auto-generated method stub
-		BaseResponse response = new BaseResponse();
+		
 		return null;
 	}
 
@@ -113,8 +116,32 @@ public class MasterServiceImpl implements MasterService{
 		//            return d1.after(d2) ? 1 : -1;
 		//        }
 		//    });
+		StopWatch timeMeasure = new StopWatch();
+		timeMeasure.start();
 		BaseResponse response = new BaseResponse();
-		return null;
+
+		
+		try {
+			for(int i=0;i<5;i++)
+			{
+				 response = masterdao.deleteWord(md.getNodeUris().get(i)+"/delete?word="+word);
+				
+			}
+
+			
+			response.setExecutionStatus(Constants.Success);
+		}
+
+		catch(Exception e)
+		{
+			response.setExecutionStatus(Constants.Failure);
+			response.setErrorDetails(e.getLocalizedMessage());
+		}
+
+		timeMeasure.stop();		
+		response.setExecutionTime(timeMeasure.getLastTaskTimeMillis());	
+
+		return response;
 	}
 
 
@@ -159,6 +186,7 @@ public class MasterServiceImpl implements MasterService{
 			c.setCreatedTime(date);
 			c.setStartIndex(startIndex);
 			c.setEndIndex(endIndex);
+			c.setNodeId(currentNode);
 			c.setWords(Arrays.copyOfRange(words,wordIndexPointer,wordIndexPointer+slotsRemaining));
 			n.setChunk(c);
 			wordIndexPointer = wordIndexPointer+slotsRemaining;
@@ -181,10 +209,6 @@ public class MasterServiceImpl implements MasterService{
 
 		return nodesData;
 	}
-
-
-
-
 
 
 }

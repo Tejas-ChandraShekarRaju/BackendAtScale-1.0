@@ -12,6 +12,8 @@ public class Chunk {
 	private Date createdTime;
 	
 	private String[] words;
+	
+	private int nodeId;
 
 	public String[] getWords() {
 		return words;
@@ -43,6 +45,14 @@ public class Chunk {
 
 	public void setCreatedTime(Date createdTime) {
 		this.createdTime = createdTime;
+	}
+
+	public int getNodeId() {
+		return nodeId;
+	}
+
+	public void setNodeId(int nodeId) {
+		this.nodeId = nodeId;
 	}
 	
 	

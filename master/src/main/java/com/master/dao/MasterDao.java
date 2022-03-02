@@ -12,6 +12,8 @@ public interface MasterDao {
 	public BaseResponse merge(List<Node> nodes);
 	
 	public ChunkResponse getChunk(String url);
+
+	public BaseResponse deleteWord(String url);
 	
 
 }

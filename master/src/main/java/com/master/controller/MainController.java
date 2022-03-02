@@ -107,7 +107,7 @@ public class MainController {
 	@ApiOperation(value="Delete a particular word in DB")
 	public @ResponseBody BaseResponse deleteWord(@PathVariable String wordValue)
 	{
-		return null;
+		return masterservice.deleteWord(wordValue);
 	}
 	
 	@PatchMapping("/node/{nodeId}")
