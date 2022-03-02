@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.slave.node.constants.Constants;
 import com.slave.node.models.Word;
 
 public class DataStore {
@@ -26,18 +27,40 @@ public class DataStore {
 
 	
 	
-	public void mergeStore(int startIndex,int endIndex,Date time, String[] words){
+	public void mergeStore(int startIndex,int endIndex,Date time, String[] words, int nodeId){
 	
 		int count = 0;
 		for(int i=startIndex;i<endIndex && count<words.length;i++)
 		{
 			this.words.get(i).setCreatedTime(time);
 			this.words.get(i).setWord(words[count]);
+			this.words.get(i).setNodeId(nodeId);
 			count++;
 			
 		}
 	}
+	
+	public String deleteWord(String word)
+	{
+		try {
+		
+			for(Word w:this.words)
+			{
+				if(w.getWord()!=null && w.getWord().equalsIgnoreCase(word))
+				{
+					w.setCreatedTime(new Date());
+					w.setWord("#Deleted#");
+				}
+			}
+		
+		
+			}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Constants.Failure;
+		}
 
-	
-	
+	return Constants.Success;
+	}
 }
