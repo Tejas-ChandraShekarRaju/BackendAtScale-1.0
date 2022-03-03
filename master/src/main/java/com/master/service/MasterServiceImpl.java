@@ -103,7 +103,7 @@ public class MasterServiceImpl implements MasterService{
 	public BaseResponse deleteWords() {
 		// TODO Auto-generated method stub
 		
-		return null;
+		return masterdao.deleteWords(md.getNodeUris());
 	}
 
 

@@ -14,6 +14,8 @@ public interface MasterDao {
 	public ChunkResponse getChunk(String url);
 
 	public BaseResponse deleteWord(String url);
+
+	BaseResponse deleteWords(List<String> uris);
 	
 
 }

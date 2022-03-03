@@ -9,5 +9,6 @@ public class Constants {
 	
 	public static final String Success = "SUCCESS";
 	public static final  String Failure = "FAILURE";
+	public static final String Deleted = "#Deleted#";
 
 }

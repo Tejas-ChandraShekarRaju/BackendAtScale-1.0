@@ -20,13 +20,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.master.models.Chunk;
+
 import com.master.request.WordRequest;
 import com.master.response.BaseResponse;
 import com.master.service.MasterService;
 
 import io.swagger.annotations.ApiOperation;
-import reactor.core.publisher.Mono;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @EnableSwagger2
@@ -53,34 +52,7 @@ public class MainController {
     return executionStatus;
     }
     
-    @GetMapping("/hello1")
-    @ApiOperation(value="")
-    public String hello1(@RequestParam(value = "name", defaultValue = "World") String name) {
-    	Chunk c = new Chunk();
-    	Date d = new Date();
-    	c.setCreatedTime(d);
-    	String[] s = new String[15];
-    	
-    	for(int i=0;i<15;i++)
-    	{
-    		s[i] = "item"+i;
-    	}
-    	
-    	c.setStartIndex(10);
-    	c.setEndIndex(25);
-    	c.setWords(s);
-    	
-    	String executionStatus =  webClientBuilder.build()
-    			.post()
-				.uri("http://localhost:8081/api/words/0")
-				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(c),Chunk.class)
-				.retrieve()
-				.bodyToMono(String.class)
-				.block();
-    	
-    return executionStatus;
-    }
+ 
     
     @PostMapping("/words")
     @ApiOperation(value="")
@@ -100,7 +72,7 @@ public class MainController {
 	@ApiOperation(value="Delete all words in DB")
 	public @ResponseBody BaseResponse deleteWords()
 	{
-		return null;
+		return masterservice.deleteWords();
 	}
 	
 	@DeleteMapping("/word/{wordValue}")
@@ -114,14 +86,14 @@ public class MainController {
 	@ApiOperation(value="")
 	public @ResponseBody BaseResponse enableDisableNode(@PathVariable String nodeId, @RequestParam String action)
 	{
-		return null;
+		return masterservice.enableDisableNode(nodeId, action);
 	}
 	
 	@GetMapping("/nodes/status")
 	@ApiOperation(value="Returns an array od nodeIds of active nodes if type=active, else returns inactive nodes")
 	public @ResponseBody BaseResponse getNodesByType(@RequestParam String type)
 	{
-		return null;
+		return masterservice.getNodesByType(type);
 	}
     
     

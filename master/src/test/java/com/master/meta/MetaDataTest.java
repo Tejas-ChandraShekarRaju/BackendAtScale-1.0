@@ -9,6 +9,8 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
+import com.master.constant.Constants;
+
 public class MetaDataTest {
 	
 	
@@ -29,5 +31,13 @@ public class MetaDataTest {
 	    System.out.println(md.getSum());
 	    assertEquals(1000, md.getSum());
 	}
-
+	
+	@Test
+	public void testGetSlaveConfigs()
+	{
+		
+		MetaData md = MetaData.getInstance();
+		System.out.println(md.getConfigSlaveStatus());
+		assertEquals(md.getConfigSlaveStatus(),Constants.Success);
+	}
 }

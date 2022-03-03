@@ -79,7 +79,7 @@ public class MasterDaoImpl implements MasterDao{
 		try {
 			
 				 response =  webClientBuilder.build()
-						.get()
+						.delete()
 						.uri(url)
 						.retrieve()
 						.bodyToMono(ChunkResponse.class)
@@ -93,6 +93,27 @@ public class MasterDaoImpl implements MasterDao{
 			e.printStackTrace();
 			response.setExecutionStatus(Constants.Failure);
 		}
+		return response;
+	}
+
+	@Override
+	public BaseResponse deleteWords(List<String> urls) {
+	
+		BaseResponse response = new BaseResponse();
+		
+		try {
+			for(String u:urls)
+			{
+				response = deleteWord(u+"/words");
+			}
+			response.setExecutionStatus(Constants.Success);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			response.setExecutionStatus(Constants.Failure);
+		}
+	
 		return response;
 	}
 
