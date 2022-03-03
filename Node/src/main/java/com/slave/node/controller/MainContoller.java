@@ -2,6 +2,7 @@ package com.slave.node.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.slave.node.constants.Constants;
 import com.slave.node.models.Chunk;
@@ -20,8 +22,10 @@ import com.slave.node.response.*;
 import com.slave.node.storage.DataStore;
 
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.Response;
+
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+
 
 @EnableSwagger2
 @RestController
@@ -32,6 +36,7 @@ public class MainContoller {
 	
 	private DataStore dataStore = new DataStore();
 	private static boolean isAlive = true;
+	
 	
 	@PostMapping("/words")
 	public BaseResponse saveWords(@RequestBody Chunk c)
@@ -95,5 +100,16 @@ public class MainContoller {
 		return response;
 		  
 	}
-
+	
+	@DeleteMapping("/words")
+	@ApiOperation(value="delete all words")
+	public @ResponseBody BaseResponse deleteWords()
+	{
+		LOGGER.info("Entry to delete all words");
+		BaseResponse response = new BaseResponse();
+		response.setExecutionStatus(dataStore.deleteWords());
+		return response;
+		  
+	}
+	
 }

@@ -49,7 +49,7 @@ public class DataStore {
 				if(w.getWord()!=null && w.getWord().equalsIgnoreCase(word))
 				{
 					w.setCreatedTime(new Date());
-					w.setWord("#Deleted#");
+					w.setWord(Constants.Deleted);
 				}
 			}
 		
@@ -62,5 +62,24 @@ public class DataStore {
 		}
 
 	return Constants.Success;
+	}
+	
+	public String deleteWords()
+	{
+		try {
+			for(Word w:this.words)
+			{
+				w.setWord(Constants.Deleted);
+			}
+			
+		}
+		
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Constants.Failure;
+		}
+		
+		return Constants.Success;
 	}
 }
