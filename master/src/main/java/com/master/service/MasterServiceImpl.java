@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -23,9 +24,15 @@ import com.master.models.Node;
 import com.master.models.Word;
 import com.master.response.BaseResponse;
 import com.master.response.ChunkResponse;
+import com.master.response.NodeHealthResponse;
+import com.master.response.StatusResponse;
 import com.master.response.TestResponse;
 import com.master.response.WordResponse;
 import com.master.service.Util;
+import com.slave.node.response.NodeStatusResponse;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service("masterservice")
 public class MasterServiceImpl implements MasterService{
@@ -34,6 +41,24 @@ public class MasterServiceImpl implements MasterService{
 	MasterDao masterdao;
 
 	private MetaData md = MetaData.getInstance();
+	
+	   public static Predicate<String> actionType = new Predicate<String>() {
+	        @Override
+	        public boolean test(String a)
+	        {
+	            return a.equalsIgnoreCase(Constants.Enabled);
+	        }
+	    };
+	    
+	    public static Predicate<String> cleanWord = new Predicate<String>() {
+	        @Override
+	        public boolean test(String a)
+	        {
+	            return (a!=null && !a.equalsIgnoreCase(Constants.Deleted));
+	        }
+	    };
+	    
+
 
 
 	public BaseResponse saveWords(String[] words) {
@@ -74,16 +99,22 @@ public class MasterServiceImpl implements MasterService{
 		StopWatch timeMeasure = new StopWatch();
 		timeMeasure.start();
 		WordResponse response = new WordResponse();
-
-		List<ChunkResponse> chunks = new ArrayList<>();
+		List<String> words = new ArrayList<>();
 		try {
 			for(int i=0;i<5;i++)
 			{
 				ChunkResponse c = masterdao.getChunk(md.getNodeUris().get(i)+"/chunk");
-				chunks.add(c);
+				c.getWords().stream()
+				.forEach(word ->{
+
+					if(cleanWord.test(word.getWord())) words.add(word.getWord());
+
+				});
+
+
 			}
 
-			response.setChunks(chunks);
+			response.setWords(words);
 			response.setExecutionStatus(Constants.Success);
 		}
 
@@ -145,17 +176,57 @@ public class MasterServiceImpl implements MasterService{
 	}
 
 
-	public BaseResponse enableDisableNode(String nodeId, String action) {
+	public BaseResponse enableDisableNode(int nodeId, String action) {
 		// TODO Auto-generated method stub
 		BaseResponse response = new BaseResponse();
-		return null;
+		boolean actionValue = actionType.test(action);
+		response = masterdao.enableDisableNode(md.getNodeUris().get(nodeId)+"/node/enableDisable?action="+actionValue,actionValue);
+			
+			if(response.getExecutionStatus().equals(Constants.Success))
+			{
+				md.setSlaveStatus(action);
+			}
+		return response;
 	}
+	
 
 
-	public BaseResponse getNodesByType(String nodeType) {
+
+	public NodeHealthResponse getNodesByType(String nodeType) {
 		// TODO Auto-generated method stub
-		BaseResponse response = new BaseResponse();
-		return null;
+		
+		NodeHealthResponse nhr = new NodeHealthResponse();
+		try {
+			StatusResponse response = new StatusResponse();
+			List<NodeStatusResponse> slaveResponse =  Flux.fromIterable(md.getNodeUris())
+					.flatMap(url -> masterdao.getNodeStatus(url+"/status").onErrorResume(e -> Mono.empty()))
+					.collectList().block();
+			response.setSlaveResponse(slaveResponse);
+
+
+
+			slaveResponse.stream()
+			.forEach(ns->{
+
+				if(ns.getIsAlive()) 
+				{
+					nhr.getActiveNodes().add(ns.getNodeId());
+				}
+				else
+				{
+					nhr.getInactiveNodes().add(ns.getNodeId());
+				}
+
+			});
+			
+			nhr.setExecutionStatus(Constants.Success);
+		}
+		catch(Exception e)
+		{
+			nhr.setExecutionStatus(Constants.Failure);
+		}
+
+		return nhr;
 	}
 
 	public List<Node> createMergePackage(int wordIndex,int nodeIndex,String[] words)
@@ -208,6 +279,20 @@ public class MasterServiceImpl implements MasterService{
 		md.setLRUN(nextStartNodeIndex);
 
 		return nodesData;
+	}
+
+
+	@Override
+	public boolean preHandle() {
+		
+		synchronized(this)
+		{
+			if(md.getSlaveStatus().equals(Constants.Disabled)) return false;
+					
+			else return true;
+		}
+		
+		
 	}
 
 

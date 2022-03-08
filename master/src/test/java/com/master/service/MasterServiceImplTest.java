@@ -8,6 +8,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.master.models.Node;
+import com.master.response.BaseResponse;
+import com.master.response.StatusResponse;
+
 
 public class MasterServiceImplTest {
 	
@@ -45,5 +48,7 @@ public class MasterServiceImplTest {
 		assertEquals(25,nodesData.get(1).getChunk().getEndIndex());
 	
 	}
+	
+	
 
 }

@@ -5,6 +5,9 @@ import java.util.List;
 import com.master.models.Node;
 import com.master.response.BaseResponse;
 import com.master.response.ChunkResponse;
+import com.slave.node.response.NodeStatusResponse;
+
+import reactor.core.publisher.Mono;
 
 public interface MasterDao {
 	
@@ -17,5 +20,8 @@ public interface MasterDao {
 
 	BaseResponse deleteWords(List<String> uris);
 	
+	public Mono<NodeStatusResponse> getNodeStatus(String url);
+
+	public BaseResponse enableDisableNode(String nodeId, boolean actionValue);
 
 }

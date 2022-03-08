@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.util.MimeTypeUtils;
@@ -33,14 +34,17 @@ public class MetaData {
 	private int LRUI = 0;
 	private int LRUN = 0;
 	private List<String> nodeUris = new ArrayList<>(5);
-	private static String slaveConfigUrl = "https://gist.githubusercontent.com/Tejas-ChandraShekarRaju/7a876c1e7b7076be91e150382371a545/raw/88f0f48d4646eabbefbd6761c0912b33442d149f/slaveconfig.json";
+	private String defaulturl = "https://gist.githubusercontent.com/Tejas-ChandraShekarRaju/7a876c1e7b7076be91e150382371a545/raw/bb4417c26b36304585995acbf665ee1ac578f465/slaveconfig.json";
+	//@Value("${slaveconfig.url:defaultslaveConfigUrl}")
+	private String slaveConfigUrl = defaulturl;
 	private String configSlaveStatus = "NA";//Constants.Failure;
+	private String slaveStatus = "ACTIVE";
 
 	
 	static MetaData md = new MetaData();
 	
 	private MetaData() {
-		
+		 
 		  getSlaveConfig();
 		
 	}
@@ -52,7 +56,7 @@ public class MetaData {
 	private void getSlaveConfig() {
 		
 		try {
-			LOGGER.info("Entered getSlaveConfig");
+			LOGGER.info(String.format("Entered getSlaveConfig with url {%s}", slaveConfigUrl));
 			SlaveConfigDto config =  WebClient.builder()
 			        .exchangeStrategies(ExchangeStrategies.builder().codecs(configurer ->{
 			                ObjectMapper mapper = new ObjectMapper();
@@ -61,7 +65,7 @@ public class MetaData {
 			                }).build())
 			        .build()
 			        .get()
-					.uri("https://gist.githubusercontent.com/Tejas-ChandraShekarRaju/7a876c1e7b7076be91e150382371a545/raw/88f0f48d4646eabbefbd6761c0912b33442d149f/slaveconfig.json")
+			        .uri(slaveConfigUrl)
 					.accept(MediaType.APPLICATION_JSON)
 					.retrieve()
 					.bodyToMono(SlaveConfigDto.class)
@@ -129,8 +133,24 @@ public class MetaData {
 
 
 
-	public String getConfigSlaveStatus() {
+	public  String getConfigSlaveStatus() {
 		return configSlaveStatus;
+	}
+
+
+
+
+
+	public synchronized String getSlaveStatus() {
+		return slaveStatus;
+	}
+
+
+
+
+
+	public synchronized void setSlaveStatus(String slaveStatus) {
+		this.slaveStatus = slaveStatus;
 	}
 
 

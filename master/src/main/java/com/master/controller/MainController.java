@@ -3,6 +3,7 @@ package com.master.controller;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +33,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @RestController
 @RequestMapping("/api")
-public class MainController {
+public class MainController implements HandlerInterceptor{
 	
 	@Autowired
 	MasterService masterservice;
@@ -84,7 +86,7 @@ public class MainController {
 	
 	@PatchMapping("/node/{nodeId}")
 	@ApiOperation(value="")
-	public @ResponseBody BaseResponse enableDisableNode(@PathVariable String nodeId, @RequestParam String action)
+	public @ResponseBody BaseResponse enableDisableNode(@PathVariable int nodeId, @RequestParam String action)
 	{
 		return masterservice.enableDisableNode(nodeId, action);
 	}
@@ -96,7 +98,13 @@ public class MainController {
 		return masterservice.getNodesByType(type);
 	}
     
-    
+	 @Override
+	   public boolean preHandle(
+	      HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+		   
+		 return masterservice.preHandle();
+	   }
+	 
 
 
 }

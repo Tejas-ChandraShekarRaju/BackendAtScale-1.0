@@ -12,8 +12,10 @@ public interface MasterService {
 	
 	public BaseResponse deleteWord(String word);
 	
-	public BaseResponse enableDisableNode(String nodeId,String action);
-	
 	public BaseResponse getNodesByType(String nodeType);
+
+	public BaseResponse enableDisableNode(int nodeId, String action);
+
+	public boolean preHandle();
 
 }
