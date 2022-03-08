@@ -181,11 +181,6 @@ public class MasterServiceImpl implements MasterService{
 		BaseResponse response = new BaseResponse();
 		boolean actionValue = actionType.test(action);
 		response = masterdao.enableDisableNode(md.getNodeUris().get(nodeId)+"/node/enableDisable?action="+actionValue,actionValue);
-			
-			if(response.getExecutionStatus().equals(Constants.Success))
-			{
-				md.setSlaveStatus(action);
-			}
 		return response;
 	}
 	
@@ -285,13 +280,11 @@ public class MasterServiceImpl implements MasterService{
 	@Override
 	public boolean preHandle() {
 		
-		synchronized(this)
-		{
-			if(md.getSlaveStatus().equals(Constants.Disabled)) return false;
-					
-			else return true;
-		}
+		NodeHealthResponse nhr = getNodesByType("active");
 		
+			if(nhr.getActiveNodes().size() == 5) return true;
+			
+			else return false;
 		
 	}
 

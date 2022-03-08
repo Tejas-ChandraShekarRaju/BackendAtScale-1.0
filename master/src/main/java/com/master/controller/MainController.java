@@ -41,6 +41,8 @@ public class MainController implements HandlerInterceptor{
 	@Autowired
 	private WebClient.Builder webClientBuilder;
 	
+	private static final Logger LOGGER=LoggerFactory.getLogger(MainController.class);
+	
     @GetMapping("/hello")
     @ApiOperation(value="")
     public String hello(@RequestParam(value = "name", defaultValue = "World") String name) {
@@ -100,9 +102,29 @@ public class MainController implements HandlerInterceptor{
     
 	 @Override
 	   public boolean preHandle(
-	      HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		   
-		 return masterservice.preHandle();
+			   HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+		 LOGGER.info(String.format("Entry to preHandle {%s}",request.getRequestURI()));
+
+		 if(request.getRequestURI().contains("/api/node/") || request.getRequestURI().contains("/api/nodes/status") ) return true;
+
+		 else
+		 {
+			 boolean res =  masterservice.preHandle();
+			 	if(res==false)
+			 	{
+			 		response.setStatus(500);
+			 		response.sendError(500, "Storage services are down");
+			 		return false;
+			 	}
+			 	else
+			 	{
+			 		return true;
+			 	}
+			 
+		 }
+
+	
 	   }
 	 
 
